@@ -1116,6 +1116,10 @@ static void hidinput_configure_usage(struct hid_input *hidinput, struct hid_fiel
 	}
 
 mapped:
+	/* Mapping failed, bail out */
+	if (!bit)
+		return;
+
 	if (device->driver->input_mapped &&
 	    device->driver->input_mapped(device, hidinput, field, usage,
 					 &bit, &max) < 0) {
@@ -1314,6 +1318,17 @@ void hidinput_hid_event(struct hid_device *hid, struct hid_field *field, struct 
 
 	input_event(input, usage->type, usage->code, value);
 
+	/* BSP.audio - 2020.11.16- modify to add headphone with wire control start */
+/*	if ((usage->code != KEY_VOLUMEDOWN) && (usage->code != KEY_VOLUMEUP)) {
+		input_event(input, usage->type, usage->code, value);
+	} else {
+		__set_bit(EV_KEY, input->evbit);
+		__set_bit(BTN_1, input->keybit);
+		__set_bit(BTN_2, input->keybit);
+		input_event(input, usage->type, (usage->code == KEY_VOLUMEDOWN) ? BTN_2 : BTN_1, value);
+	}
+*/
+	/* BSP.audio - 2020.11.16- modify to add headphone with wire control end */
 	if ((field->flags & HID_MAIN_ITEM_RELATIVE) &&
 	    usage->type == EV_KEY && value) {
 		input_sync(input);
